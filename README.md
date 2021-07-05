@@ -3,5 +3,5 @@ A NodeMCU based project which defect water or rain via rain sensor and give pop 
 
 # Screenshot
 
-![image](https://drive.google.com/uc?export=view&id=1fFkaUuJj5nDPNMnLf9VEQfBM1nSuu2DZ {width=40px height=400px})
-![image](https://drive.google.com/uc?export=view&id=1fG8FHoUJpAef0u_vpoI421CKEVvgvUFT {width=40px height=400px})
+![image](https://drive.google.com/uc?export=view&id=1fFkaUuJj5nDPNMnLf9VEQfBM1nSuu2DZ)
+![image](https://drive.google.com/uc?export=view&id=1fG8FHoUJpAef0u_vpoI421CKEVvgvUFT)
