@@ -307,7 +307,7 @@ setInterval(function ( ) {
       document.getElementById("tsr").innerHTML = "Water Detected";
     } else {
     document.getElementById("myDIV").className = "weather-icon sun";
-      document.getElementById("tsr").innerHTML = "Its Clear";
+      document.getElementById("tsr").innerHTML = "Its Dry";
     }
     }
   };
