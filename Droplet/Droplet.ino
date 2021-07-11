@@ -2,46 +2,38 @@
 //https://github.com/Ajmalva/Droplet/
 
 // Import required libraries
+#include <ESP8266WebServer.h>
+#define WEBSERVER_H   //defined to avoid conflict b/w libraries by ESPAsyncWebServer library
 #include "ESPAsyncWebServer.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 #include <ArduinoJson.h>
+#include <DNSServer.h>
+#include<WiFiManager.h>    //library to use the wifi anywhere
 
-// Replace with your network credentials
-const char* ssid = "###";
-const char* password = "***";
+
+const int rainSensor = 14; //  Rain Sensor
+int sensorPin = A0;    // input from rain sensor
+int sensorValue2 = 0;  // variable to store the value coming from sensor Rain sensor
+bool rainDetected = false;
+int Sensed = 0;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-int Sensed = 0;
-
-String readsen() {
-  int h = Sensed;
-   Serial.println(h);
-    return String(h);
-}
-
-
-
 // Initialize Telegram BOT
-#define BOTtoken "###############"  // your Bot Token (Get from Botfather)
+#define BOTtoken "#############"  // your Bot Token (Get from Botfather)
 
 // Use @myidbot to find out the chat ID of an individual or a group
 // Also note that you need to click "start" on a bot before it can
 // message you
-#define CHAT_ID "####"
+#define CHAT_ID "#####"
 
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure client;
 UniversalTelegramBot bot(BOTtoken, client);
 
-const int rainSensor = 14; //  Rain Sensor
-int sensorPin = A0;    // input for LDR and rain sensor
-int sensorValue2 = 0;  // variable to store the value coming from sensor Rain sensor
-
-bool rainDetected = false;
 
 // Indicates when Rain is detected
 void ICACHE_RAM_ATTR detectsDroplet() {
@@ -49,13 +41,13 @@ void ICACHE_RAM_ATTR detectsDroplet() {
   rainDetected = true;
 }
 
-
-//Html code of webserver
+//html file of the droplet webserver
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <title>Droplet</title>
   <style>
     @import url(https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900);
 #ajerez {
@@ -283,7 +275,7 @@ body {
 </head>
 <body>
   <center>
-  <h2>ESP Droplet Server</h2>
+  <h2>Droplet WebAPP</h2>
  </center>
  <div class="weather-wrapper">
     <div class="weather-card madrid">
@@ -315,8 +307,18 @@ setInterval(function ( ) {
   xhttp.send();
 }, 10000 ) ;
 </script>
-</html>)rawliteral";
+</html>)rawliteral";  
+// html page ends here
 
+
+String readsen() {
+  int h = Sensed;
+  Serial.println(h);
+  return String(h);
+  }
+
+  
+// Replaces placeholder with rain values
 String processor(const String& var){
   if(var == "SKY"){
   Serial.println("var");
@@ -326,8 +328,8 @@ String processor(const String& var){
   return String();
 }
 
-
 void setup() {
+  
   Serial.begin(115200);
   configTime(0, 0, "pool.ntp.org");      // get UTC time via NTP
   client.setTrustAnchors(&cert); // Add root certificate for api.telegram.org
@@ -338,18 +340,11 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(rainSensor), detectsDroplet, HIGH);
 
   // Attempt to connect to Wifi network:
-  Serial.print("Connecting Wifi: ");
-  Serial.println(ssid);
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-
-  Serial.println("");
+  // using wifi manager for better portablity
+  // no need of hardcodiing wifi credentials
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("Droplet");
+  Serial.println();
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
@@ -380,13 +375,13 @@ sensorValue2 = constrain(sensorValue2, 150, 440);
 sensorValue2 = map(sensorValue2, 150, 440, 1023, 0); 
 if (sensorValue2>= 20)
 {
-  Serial.print("Water is detected");
+  Serial.println("Water is detected");
   Sensed = 1;
   }
   else
   
 {
-  Serial.print("No water detected");
+  Serial.println("No water detected");
   Sensed = 0;
   }
   Serial.print("value:  ");
